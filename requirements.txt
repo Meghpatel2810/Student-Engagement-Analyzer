@@ -1,5 +1,0 @@
-ultralytics
-streamlit
-fastapi
-uvicorn
-onnxruntime
