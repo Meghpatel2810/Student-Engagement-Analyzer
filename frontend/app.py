@@ -53,15 +53,23 @@ def main():
         
         if st.button("Analyze Video", type="primary", use_container_width=True):
             st.info("Initiating analysis pipeline...")
-            st.warning("Note: The video processing endpoint is not yet implemented in the backend!")
             
-            # TODO: Future Implementation for sending the video to FastAPI
-            # with st.spinner("Uploading and analyzing..."):
-            #     files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
-            #     response = requests.post(f"{BACKEND_URL}/analyze", files=files)
-            #     if response.status_code == 200:
-            #         st.success("Analysis complete!")
-            #         st.json(response.json())
+            with st.spinner("Uploading and analyzing... This may take a few minutes depending on the video length."):
+                try:
+                    files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
+                    response = requests.post(f"{BACKEND_URL}/analyze", files=files, timeout=300) # 5 min timeout
+                    
+                    if response.status_code == 200:
+                        st.success("Analysis complete!")
+                        # Save the returned video temporarily to display it
+                        with open("output_video.mp4", "wb") as f:
+                            f.write(response.content)
+                        st.video("output_video.mp4")
+                        st.balloons()
+                    else:
+                        st.error(f"Error from server: {response.status_code} - {response.text}")
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
